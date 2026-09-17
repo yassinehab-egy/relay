@@ -74,9 +74,8 @@
             </div>
         </aside>
 
-        <!-- Right Chat Window (Fully Black & Dark) -->
+        <!-- Right Chat Window -->
         <main class="flex-1 bg-black flex flex-col">
-            <!-- Active Chat Header -->
             <div id="active-chat-header" class="h-14 bg-relay-panel border-b border-relay-border px-6 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
                     <div class="w-9 h-9 rounded-full bg-relay-border flex items-center justify-center text-white font-bold text-sm" id="active-avatar">?</div>
@@ -217,7 +216,6 @@
         let socket = null;
         let wsConnected = false;
 
-        // Matches backend: USERNAME_PATTERN = re.compile(r"^[A-Za-z][A-Za-z0-9]{2,24}_[0-9]{5}$")
         const usernameRegex = /^[A-Za-z][A-Za-z0-9]{2,24}_[0-9]{5}$/;
 
         function validateUsernameFormat(input) {
@@ -238,7 +236,6 @@
                     const data = await res.json();
                     currentUser = data.user;
                     document.getElementById('auth-modal').classList.add('hidden');
-                    connectWebSocket();
                 } else {
                     document.getElementById('auth-modal').classList.remove('hidden');
                 }
@@ -346,7 +343,7 @@
                 if (res.ok) {
                     currentUser = data.user;
                     document.getElementById('auth-modal').classList.add('hidden');
-                    connectWebSocket();
+                    if (activeRecipient) connectWebSocket();
                 } else {
                     alert(data.detail || 'Registration failed');
                 }
@@ -370,7 +367,7 @@
                 if (res.ok) {
                     currentUser = data.user;
                     document.getElementById('auth-modal').classList.add('hidden');
-                    connectWebSocket();
+                    if (activeRecipient) connectWebSocket();
                 } else {
                     alert(data.detail || 'Login failed');
                 }
@@ -421,7 +418,6 @@
             };
         }
 
-        // Search users from backend API
         document.getElementById('user-search-input').addEventListener('input', async (e) => {
             const query = e.target.value.trim();
             if (query.length > 0) {
@@ -505,7 +501,7 @@
                 chatMessages.innerHTML = '';
             }
 
-            const isMe = sender === currentUser.username;
+            const isMe = currentUser && sender === currentUser.username;
             const div = document.createElement('div');
             div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-3`;
             div.innerHTML = `
