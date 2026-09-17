@@ -494,13 +494,13 @@
       query, 
       where, 
       getDocs,
-      addFile, // placeholder
       addDoc,
       onSnapshot,
       orderBy,
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+    // Your Firebase configuration for relay-8856b
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "relay-8856b.firebaseapp.com",
@@ -583,7 +583,6 @@
 
     window.handleLogOut = () => signOut(auth);
 
-    // Search users in Firestore by handle
     window.searchUsers = async function(e) {
       const queryVal = e.target.value.trim().toLowerCase().replace('@', '');
       const contactsList = document.getElementById('contactsList');
@@ -604,7 +603,7 @@
 
       snapshot.forEach(docSnap => {
         const userData = docSnap.data();
-        if (userData.uid === currentUser.uid) return; // Don't show yourself
+        if (userData.uid === currentUser.uid) return;
 
         const item = document.createElement('div');
         item.className = 'contact-item';
@@ -620,10 +619,9 @@
       });
     };
 
-    // Open Chat with a selected user
     function openChat(user) {
       activeChatUser = user;
-      if (unsubscribeMessages) unsubscribeMessages(); // Stop listening to previous chat
+      if (unsubscribeMessages) unsubscribeMessages();
 
       const chatArea = document.getElementById('chatArea');
       chatArea.innerHTML = `
@@ -637,7 +635,6 @@
         </div>
       `;
 
-      // Create a unique chat room ID combining both user IDs alphabetically
       const chatId = [currentUser.uid, user.uid].sort().join('_');
       const msgRef = collection(db, "chats", chatId, "messages");
       const q = query(msgRef, orderBy("createdAt", "asc"));
