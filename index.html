@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Relay - Real-Time Chat</title>
+  <title>Friends Chat - Real-Time Chat</title>
   <style>
     * {
       box-sizing: border-box;
@@ -401,7 +401,7 @@
       <div class="brand-logo">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </div>
-      <h1 class="brand-title">Relay</h1>
+      <h1 class="brand-title">Friends Chat</h1>
       <p class="brand-subtitle">Private Messaging Platform</p>
     </div>
 
@@ -468,7 +468,7 @@
       <!-- CHAT WINDOW -->
       <div class="chat-area" id="chatArea">
         <div class="empty-chat">
-          <h2>Welcome to Relay</h2>
+          <h2>Welcome to Friends Chat</h2>
           <p style="margin-top: 6px;">Select or search a contact from the sidebar to start messaging.</p>
         </div>
       </div>
@@ -500,7 +500,6 @@
       serverTimestamp 
     } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // Your Firebase configuration for relay-8856b
     const firebaseConfig = {
       apiKey: "YOUR_API_KEY",
       authDomain: "relay-8856b.firebaseapp.com",
@@ -555,7 +554,7 @@
       }
 
       try {
-        const internalEmail = `${generatedHandle.toLowerCase()}@relay.app`;
+        const internalEmail = `${generatedHandle.toLowerCase()}@friendschat.app`;
         const userCred = await createUserWithEmailAndPassword(auth, internalEmail, passwordVal);
         await setDoc(doc(db, "users", userCred.user.uid), {
           uid: userCred.user.uid,
@@ -574,7 +573,7 @@
       const handleVal = document.getElementById('loginHandle').value.trim().replace('@', '');
       const statusMsg = document.getElementById('statusMsg');
       try {
-        await signInWithEmailAndPassword(auth, `${handleVal.toLowerCase()}@relay.app`, document.getElementById('loginPassword').value);
+        await signInWithEmailAndPassword(auth, `${handleVal.toLowerCase()}@friendschat.app`, document.getElementById('loginPassword').value);
       } catch (err) {
         statusMsg.className = "status-msg error";
         statusMsg.textContent = "Invalid handle or password.";
