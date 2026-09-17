@@ -1,520 +1,699 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Relay - Chat</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        relay: {
-                            bg: '#000000',
-                            panel: '#0a0a0a',
-                            border: '#222222',
-                            hover: '#141414',
-                            active: '#1f1f1f',
-                            input: '#121212',
-                            bubble: '#1a1a1a',
-                            accent: '#ffffff'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relay - Real-Time Chat</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #0b141a;
+      color: #e9edef;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* Auth Screen */
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+      background-color: #111b21;
+      border: 1px solid #222d34;
+      border-radius: 16px;
+      padding: 32px 24px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .brand-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .brand-logo {
+      width: 56px;
+      height: 56px;
+      background: #00a884;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      box-shadow: 0 0 16px rgba(0, 168, 132, 0.3);
+    }
+
+    .brand-logo svg {
+      width: 28px;
+      height: 28px;
+      fill: #111b21;
+    }
+
+    .brand-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #e9edef;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 13px;
+      color: #8696a0;
+      margin-top: 4px;
+    }
+
+    .tab-nav {
+      display: flex;
+      background-color: #202c33;
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 24px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: transparent;
+      border: none;
+      color: #8696a0;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background-color: #00a884;
+      color: #111b21;
+    }
+
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .input-group label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #8696a0;
+      font-weight: 600;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 14px;
+      background-color: #202c33;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: #e9edef;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s ease;
+    }
+
+    .input-field:focus {
+      border-color: #00a884;
+    }
+
+    .handle-preview {
+      font-size: 12px;
+      color: #00a884;
+      margin-top: 4px;
+      font-weight: 500;
+      min-height: 18px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background-color: #00a884;
+      color: #111b21;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .btn-submit:hover {
+      background-color: #029071;
+    }
+
+    .status-msg {
+      font-size: 13px;
+      text-align: center;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    .status-msg.error { color: #f15c6d; }
+    .status-msg.success { color: #00a884; }
+
+    /* Dashboard Layout */
+    .dashboard-container {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      background-color: #111b21;
+    }
+
+    .app-layout {
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 360px;
+      background-color: #111b21;
+      border-right: 1px solid #222d34;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      height: 60px;
+      background-color: #202c33;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      background-color: #00a884;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #111b21;
+      font-size: 16px;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e9edef;
+    }
+
+    .user-handle {
+      font-size: 12px;
+      color: #00a884;
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: none;
+      color: #8696a0;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn-logout:hover { color: #f15c6d; }
+
+    .search-box-container {
+      padding: 10px 16px;
+      background-color: #111b21;
+      border-bottom: 1px solid #222d34;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 14px;
+      background-color: #202c33;
+      border: none;
+      border-radius: 8px;
+      color: #e9edef;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .contacts-list {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .contact-item {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #222d34;
+      transition: background 0.15s;
+    }
+
+    .contact-item:hover {
+      background-color: #202c33;
+    }
+
+    .contact-item.active {
+      background-color: #2a3942;
+    }
+
+    .contact-details h4 {
+      font-size: 15px;
+      color: #e9edef;
+    }
+
+    .contact-details p {
+      font-size: 12px;
+      color: #8696a0;
+      margin-top: 2px;
+    }
+
+    /* Chat Area */
+    .chat-area {
+      flex: 1;
+      background-color: #0b141a;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      height: 60px;
+      background-color: #202c33;
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      font-weight: 600;
+      color: #e9edef;
+      border-bottom: 1px solid #222d34;
+    }
+
+    .messages-container {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background-image: radial-gradient(#1f2c34 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    .message-bubble {
+      max-width: 60%;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    .message-bubble.incoming {
+      background-color: #202c33;
+      color: #e9edef;
+      align-self: flex-start;
+      border-top-left-radius: 0;
+    }
+
+    .message-bubble.outgoing {
+      background-color: #005c4b;
+      color: #e9edef;
+      align-self: flex-end;
+      border-top-right-radius: 0;
+    }
+
+    .chat-input-footer {
+      padding: 12px 20px;
+      background-color: #202c33;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 12px 16px;
+      background-color: #2a3942;
+      border: none;
+      border-radius: 8px;
+      color: #e9edef;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .btn-send {
+      background: #00a884;
+      border: none;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-send:hover { background: #029071; }
+    .btn-send svg { width: 20px; height: 20px; fill: #111b21; }
+
+    .empty-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #8696a0;
+      text-align: center;
+    }
+  </style>
 </head>
-<body class="bg-relay-bg text-gray-100 h-screen flex flex-col overflow-hidden font-sans">
+<body>
 
-    <!-- Top Navbar Brand -->
-    <header class="bg-relay-panel border-b border-relay-border h-14 flex items-center px-4 justify-between select-none">
-        <div class="flex items-center space-x-3">
-            <div class="w-9 h-9 bg-white text-black font-black flex items-center justify-center rounded-xl text-lg shadow-md tracking-tighter">R</div>
-            <span class="font-bold text-lg tracking-wide text-white">Relay</span>
-        </div>
-        <div id="user-status-display" class="text-xs text-gray-400 flex items-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-gray-600" id="connection-dot"></span>
-            <span id="connection-text">Disconnected</span>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <div class="flex-1 flex overflow-hidden">
-
-        <!-- Sidebar Navigation -->
-        <nav class="w-16 bg-relay-panel border-r border-relay-border flex flex-col items-center py-4 space-y-4">
-            <button class="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shadow-lg transition hover:scale-105" title="Chat">
-                <i class="fa-solid fa-comment-dots text-sm"></i>
-            </button>
-            <button class="w-10 h-10 rounded-xl text-gray-400 hover:text-white hover:bg-relay-hover flex items-center justify-center transition" title="Contacts">
-                <i class="fa-solid fa-address-book text-sm"></i>
-            </button>
-            <div class="flex-1"></div>
-            <button onclick="openSettings()" class="w-10 h-10 rounded-xl text-gray-400 hover:text-white hover:bg-relay-hover flex items-center justify-center transition" title="Settings">
-                <i class="fa-solid fa-gear text-sm"></i>
-            </button>
-        </nav>
-
-        <!-- Sidebar Chat List & Search -->
-        <aside class="w-80 bg-relay-panel border-r border-relay-border flex flex-col">
-            <div class="p-3 border-b border-relay-border">
-                <div class="relative">
-                    <i class="fa-solid fa-search absolute left-3 top-3 text-gray-500 text-sm"></i>
-                    <input type="text" id="user-search-input" placeholder="Search username (e.g. Yassin_48765)" 
-                        class="w-full bg-relay-input border border-relay-border rounded-xl pl-9 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white transition">
-                </div>
-            </div>
-            
-            <div id="contacts-list" class="flex-1 overflow-y-auto divide-y divide-relay-border/40">
-                <div class="p-4 text-center text-xs text-gray-500">Search for a user to start chatting</div>
-            </div>
-        </aside>
-
-        <!-- Right Chat Window -->
-        <main class="flex-1 bg-black flex flex-col">
-            <div id="active-chat-header" class="h-14 bg-relay-panel border-b border-relay-border px-6 flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-9 h-9 rounded-full bg-relay-border flex items-center justify-center text-white font-bold text-sm" id="active-avatar">?</div>
-                    <div>
-                        <h2 class="text-sm font-bold text-white" id="active-username">Select a chat</h2>
-                        <p class="text-xs text-gray-500" id="active-status">Offline</p>
-                    </div>
-                </div>
-                <div class="flex items-center space-x-4 text-gray-400">
-                    <button class="hover:text-white transition"><i class="fa-solid fa-phone"></i></button>
-                    <button class="hover:text-white transition"><i class="fa-solid fa-video"></i></button>
-                    <button class="hover:text-white transition"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                </div>
-            </div>
-
-            <!-- Messages Stream Area -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col bg-black">
-                <div class="m-auto text-center text-gray-600 text-sm">
-                    <div class="w-12 h-12 rounded-2xl bg-relay-panel border border-relay-border flex items-center justify-center mx-auto mb-3 text-white text-xl">
-                        <i class="fa-solid fa-comments"></i>
-                    </div>
-                    No conversation selected. Search for someone on the left to begin!
-                </div>
-            </div>
-
-            <!-- Message Input Footer -->
-            <div id="chat-input-area" class="p-4 bg-relay-panel border-t border-relay-border hidden">
-                <form id="message-form" class="flex items-center space-x-3">
-                    <button type="button" class="text-gray-400 hover:text-white text-lg px-2"><i class="fa-solid fa-face-smile"></i></button>
-                    <button type="button" class="text-gray-400 hover:text-white text-lg px-2"><i class="fa-solid fa-paperclip"></i></button>
-                    <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off"
-                        class="flex-1 bg-relay-input border border-relay-border rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white transition">
-                    <button type="submit" class="bg-white text-black font-semibold px-5 py-2.5 rounded-xl text-sm hover:bg-gray-200 transition shadow-md flex items-center space-x-2">
-                        <span>Send</span>
-                        <i class="fa-solid fa-paper-plane text-xs"></i>
-                    </button>
-                </form>
-            </div>
-        </main>
+  <!-- AUTH SCREEN -->
+  <div id="authScreen" class="auth-container">
+    <div class="brand-header">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </div>
+      <h1 class="brand-title">Relay</h1>
+      <p class="brand-subtitle">Private Messaging Platform</p>
     </div>
 
-    <!-- Auth Modal -->
-    <div id="auth-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-        <div class="bg-relay-panel border border-relay-border w-full max-w-md rounded-2xl p-6 shadow-2xl">
-            <div class="text-center mb-6">
-                <div class="w-12 h-12 bg-white text-black font-black flex items-center justify-center rounded-2xl text-xl mx-auto mb-3 shadow-lg">R</div>
-                <h1 class="text-xl font-bold text-white tracking-wide">Welcome to Relay</h1>
-                <p class="text-xs text-gray-400 mt-1">Secure real-time messaging</p>
-            </div>
-
-            <!-- Tabs -->
-            <div class="flex border-b border-relay-border mb-6">
-                <button id="tab-login" onclick="switchAuthTab('login')" class="flex-1 pb-3 text-sm font-semibold text-white border-b-2 border-white transition">Sign In</button>
-                <button id="tab-signup" onclick="switchAuthTab('signup')" class="flex-1 pb-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent transition">Sign Up</button>
-            </div>
-
-            <!-- Forms -->
-            <div id="form-container">
-                <!-- Login Form -->
-                <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Username</label>
-                        <input type="text" id="login-username" required placeholder="e.g. Yassin_48765"
-                            class="w-full bg-relay-input border border-relay-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Password</label>
-                        <input type="password" id="login-password" required placeholder="••••••••"
-                            class="w-full bg-relay-input border border-relay-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white">
-                    </div>
-                    <div class="flex items-center justify-between text-xs">
-                        <span></span>
-                        <button type="button" onclick="showForgotPassword()" class="text-gray-400 hover:text-white underline">Forgot password?</button>
-                    </div>
-                    <button type="submit" class="w-full bg-white text-black font-semibold py-2.5 rounded-xl text-sm hover:bg-gray-200 transition shadow-md">Sign In</button>
-                </form>
-
-                <!-- Signup Form -->
-                <form id="signup-form" onsubmit="handleSignup(event)" class="space-y-4 hidden">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Username <span class="text-gray-500 font-normal">(Format: Name_12345)</span></label>
-                        <input type="text" id="signup-username" required placeholder="e.g. Yassin_48765" oninput="validateUsernameFormat(this)"
-                            class="w-full bg-relay-input border border-relay-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white">
-                        <p id="username-error" class="text-xs text-red-400 mt-1 hidden">Must follow backend format: Letters, underscore, and 5 digits (e.g. Yassin_48765)</p>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Password (Min 8 chars)</label>
-                        <input type="password" id="signup-password" required minlength="8" placeholder="••••••••"
-                            class="w-full bg-relay-input border border-relay-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white">
-                    </div>
-                    <button type="submit" class="w-full bg-white text-black font-semibold py-2.5 rounded-xl text-sm hover:bg-gray-200 transition shadow-md">Create Account</button>
-                </form>
-
-                <!-- Forgot Password Flow -->
-                <div id="forgot-container" class="space-y-4 hidden">
-                    <div id="forgot-step-1">
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Enter your Username</label>
-                        <input type="text" id="forgot-username-input" placeholder="Yassin_48765"
-                            class="w-full bg-relay-input border border-relay-border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white mb-3">
-                        <button type="button" onclick="requestRecovery()" class="w-full bg-white text-black font-semibold py-2.5 rounded-xl text-sm hover:bg-gray-200 transition shadow-md">Get Recovery Code</button>
-                    </div>
-                    <div id="forgot-step-2" class="hidden space-y-3">
-                        <div class="p-3 bg-relay-input border border-relay-border rounded-xl text-xs text-gray-300">
-                            Simulation code generated! Copy it below or apply it automatically:
-                        </div>
-                        <input type="text" id="recovery-token-input" placeholder="Paste reset token here"
-                            class="w-full bg-relay-input border border-relay-border rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-white">
-                        <input type="password" id="reset-new-password" placeholder="New password (min 8 chars)"
-                            class="w-full bg-relay-input border border-relay-border rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-white">
-                        <button type="button" onclick="submitPasswordReset()" class="w-full bg-white text-black font-semibold py-2.5 rounded-xl text-sm hover:bg-gray-200 transition shadow-md">Update Password</button>
-                    </div>
-                    <div class="text-center pt-2">
-                        <button type="button" onclick="backToLogin()" class="text-xs text-gray-400 hover:text-white underline">Back to Sign In</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="tab-nav">
+      <button id="tabSignIn" class="tab-btn active" onclick="switchTab('signin')">Sign In</button>
+      <button id="tabSignUp" class="tab-btn" onclick="switchTab('signup')">Create Account</button>
     </div>
 
-    <!-- Settings Modal -->
-    <div id="settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-relay-panel border border-relay-border w-full max-w-sm rounded-2xl p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-relay-border pb-3">
-                <h3 class="font-bold text-white text-sm">Account Settings</h3>
-                <button onclick="closeSettings()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+    <form id="signInForm" class="auth-form" onsubmit="handleSignIn(event)">
+      <div class="input-group">
+        <label for="loginHandle">Your Unique Handle</label>
+        <input type="text" id="loginHandle" class="input-field" placeholder="e.g. Yassin_362735" required>
+      </div>
+      <div class="input-group">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" class="input-field" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-submit">Sign In</button>
+    </form>
+
+    <form id="signUpForm" class="auth-form" style="display: none;" onsubmit="handleSignUp(event)">
+      <div class="input-group">
+        <label for="regName">Display Name</label>
+        <input type="text" id="regName" class="input-field" placeholder="e.g. Yassin Koshari" oninput="updateHandlePreview(this.value)" required>
+        <div id="handlePreview" class="handle-preview">Your handle will look like: @Name_123456</div>
+      </div>
+      <div class="input-group">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" class="input-field" placeholder="••••••••" required minlength="6">
+      </div>
+      <button type="submit" class="btn-submit">Create Account</button>
+    </form>
+
+    <div id="statusMsg" class="status-msg"></div>
+  </div>
+
+  <!-- MAIN DASHBOARD -->
+  <div id="dashScreen" class="dashboard-container">
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <div class="sidebar">
+        <div class="sidebar-header">
+          <div class="user-badge">
+            <div id="userAvatar" class="avatar">Y</div>
+            <div class="user-info">
+              <span id="userNameDisplay" class="user-name">User</span>
+              <span id="userHandleDisplay" class="user-handle">@Handle</span>
             </div>
-            <div class="space-y-2 text-xs">
-                <p class="text-gray-400">Logged in as: <span id="settings-username" class="text-white font-bold"></span></p>
-                <p class="text-gray-400">Theme: <span class="text-white font-bold">Pure Black & White</span></p>
-            </div>
-            <button onclick="handleLogout()" class="w-full bg-red-600/20 text-red-400 border border-red-600/30 font-semibold py-2 rounded-xl text-xs hover:bg-red-600/30 transition">Log Out</button>
+          </div>
+          <button class="btn-logout" onclick="handleLogOut()">Sign Out</button>
         </div>
+
+        <div class="search-box-container">
+          <input type="text" id="searchHandleInput" class="search-input" placeholder="Search handle (e.g. Asser_123456)..." onkeyup="searchUsers(event)">
+        </div>
+
+        <div id="contactsList" class="contacts-list">
+          <div style="padding: 20px; text-align: center; color: #8696a0; font-size: 13px;">
+            Search for a friend's handle above to chat!
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT WINDOW -->
+      <div class="chat-area" id="chatArea">
+        <div class="empty-chat">
+          <h2>Welcome to Relay</h2>
+          <p style="margin-top: 6px;">Select or search a contact from the sidebar to start messaging.</p>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        let currentUser = null;
-        let activeRecipient = null;
-        let socket = null;
-        let wsConnected = false;
+  <!-- FIREBASE SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      doc, 
+      setDoc, 
+      getDoc, 
+      collection, 
+      query, 
+      where, 
+      getDocs,
+      addFile, // placeholder
+      addDoc,
+      onSnapshot,
+      orderBy,
+      serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const usernameRegex = /^[A-Za-z][A-Za-z0-9]{2,24}_[0-9]{5}$/;
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "relay-8856b.firebaseapp.com",
+      projectId: "relay-8856b",
+      storageBucket: "relay-8856b.firebasestorage.app",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
 
-        function validateUsernameFormat(input) {
-            const errorEl = document.getElementById('username-error');
-            if (input.value && !usernameRegex.test(input.value)) {
-                errorEl.classList.remove('hidden');
-                return false;
-            } else {
-                errorEl.classList.add('hidden');
-                return true;
-            }
-        }
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        async function checkSession() {
-            try {
-                const res = await fetch('/relay-api/auth/me');
-                if (res.ok) {
-                    const data = await res.json();
-                    currentUser = data.user;
-                    document.getElementById('auth-modal').classList.add('hidden');
-                } else {
-                    document.getElementById('auth-modal').classList.remove('hidden');
-                }
-            } catch (err) {
-                document.getElementById('auth-modal').classList.remove('hidden');
-            }
-        }
+    let currentUser = null;
+    let generatedHandle = "";
+    let activeChatUser = null;
+    let unsubscribeMessages = null;
 
-        function switchAuthTab(tab) {
-            const loginForm = document.getElementById('login-form');
-            const signupForm = document.getElementById('signup-form');
-            const forgotContainer = document.getElementById('forgot-container');
-            const tabLogin = document.getElementById('tab-login');
-            const tabSignup = document.getElementById('tab-signup');
+    window.switchTab = function(type) {
+      document.getElementById('signInForm').style.display = type === 'signin' ? 'flex' : 'none';
+      document.getElementById('signUpForm').style.display = type === 'signup' ? 'flex' : 'none';
+      document.getElementById('tabSignIn').classList.toggle('active', type === 'signin');
+      document.getElementById('tabSignUp').classList.toggle('active', type === 'signup');
+      document.getElementById('statusMsg').textContent = "";
+    };
 
-            loginForm.classList.add('hidden');
-            signupForm.classList.add('hidden');
-            forgotContainer.classList.add('hidden');
+    window.updateHandlePreview = function(nameVal) {
+      const previewDiv = document.getElementById('handlePreview');
+      const cleanName = nameVal.trim().split(' ')[0].replace(/[^a-zA-Z0-9]/g, '');
+      if (!cleanName) {
+        previewDiv.textContent = "Your handle will look like: @Name_123456";
+        generatedHandle = "";
+        return;
+      }
+      if (!window.currentRandomSuffix) {
+        window.currentRandomSuffix = Math.floor(100000 + Math.random() * 900000);
+      }
+      generatedHandle = `${cleanName}_${window.currentRandomSuffix}`;
+      previewDiv.textContent = `Your handle will be: @${generatedHandle}`;
+    };
 
-            tabLogin.className = "flex-1 pb-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent transition";
-            tabSignup.className = "flex-1 pb-3 text-sm font-semibold text-gray-400 border-b-2 border-transparent transition";
+    window.handleSignUp = async function(e) {
+      e.preventDefault();
+      const nameVal = document.getElementById('regName').value.trim();
+      const passwordVal = document.getElementById('regPassword').value;
+      const statusMsg = document.getElementById('statusMsg');
 
-            if (tab === 'login') {
-                loginForm.classList.remove('hidden');
-                tabLogin.className = "flex-1 pb-3 text-sm font-semibold text-white border-b-2 border-white transition";
-            } else if (tab === 'signup') {
-                signupForm.classList.remove('hidden');
-                tabSignup.className = "flex-1 pb-3 text-sm font-semibold text-white border-b-2 border-white transition";
-            }
-        }
+      if (!generatedHandle) {
+        statusMsg.className = "status-msg error";
+        statusMsg.textContent = "Please enter a valid display name.";
+        return;
+      }
 
-        function showForgotPassword() {
-            document.getElementById('login-form').classList.add('hidden');
-            document.getElementById('signup-form').classList.add('hidden');
-            document.getElementById('forgot-container').classList.remove('hidden');
-            document.getElementById('forgot-step-1').classList.remove('hidden');
-            document.getElementById('forgot-step-2').classList.add('hidden');
-        }
-
-        function backToLogin() {
-            switchAuthTab('login');
-        }
-
-        async function requestRecovery() {
-            const username = document.getElementById('forgot-username-input').value.trim();
-            try {
-                const res = await fetch('/relay-api/auth/recover', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    if (data.reset_token) {
-                        document.getElementById('recovery-token-input').value = data.reset_token;
-                    }
-                    document.getElementById('forgot-step-1').classList.add('hidden');
-                    document.getElementById('forgot-step-2').classList.remove('hidden');
-                } else {
-                    alert(data.detail || 'Recovery failed');
-                }
-            } catch (err) {
-                alert('Network error during recovery request.');
-            }
-        }
-
-        async function submitPasswordReset() {
-            const token = document.getElementById('recovery-token-input').value.trim();
-            const new_password = document.getElementById('reset-new-password').value;
-            try {
-                const res = await fetch('/relay-api/auth/reset', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token, new_password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert('Password updated successfully! Please sign in.');
-                    backToLogin();
-                } else {
-                    alert(data.detail || 'Reset failed');
-                }
-            } catch (err) {
-                alert('Network error during password reset.');
-            }
-        }
-
-        async function handleSignup(e) {
-            e.preventDefault();
-            const username = document.getElementById('signup-username').value.trim();
-            const password = document.getElementById('signup-password').value;
-
-            if (!usernameRegex.test(username)) {
-                alert('Username must follow format: Name_12345');
-                return;
-            }
-
-            try {
-                const res = await fetch('/relay-api/auth/register', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    currentUser = data.user;
-                    document.getElementById('auth-modal').classList.add('hidden');
-                    if (activeRecipient) connectWebSocket();
-                } else {
-                    alert(data.detail || 'Registration failed');
-                }
-            } catch (err) {
-                alert('Network error during registration.');
-            }
-        }
-
-        async function handleLogin(e) {
-            e.preventDefault();
-            const username = document.getElementById('login-username').value.trim();
-            const password = document.getElementById('login-password').value;
-
-            try {
-                const res = await fetch('/relay-api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    currentUser = data.user;
-                    document.getElementById('auth-modal').classList.add('hidden');
-                    if (activeRecipient) connectWebSocket();
-                } else {
-                    alert(data.detail || 'Login failed');
-                }
-            } catch (err) {
-                alert('Network error during login.');
-            }
-        }
-
-        async function handleLogout() {
-            await fetch('/relay-api/auth/logout', { method: 'POST' });
-            location.reload();
-        }
-
-        function openSettings() {
-            document.getElementById('settings-username').innerText = currentUser ? currentUser.username : '';
-            document.getElementById('settings-modal').classList.remove('hidden');
-        }
-
-        function closeSettings() {
-            document.getElementById('settings-modal').classList.add('hidden');
-        }
-
-        function connectWebSocket() {
-            if (!activeRecipient) return;
-            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}/relay-ws?with=${activeRecipient}`;
-            
-            if (socket) socket.close();
-            socket = new WebSocket(wsUrl);
-
-            socket.onopen = () => {
-                wsConnected = true;
-                document.getElementById('connection-dot').className = "w-2 h-2 rounded-full bg-white";
-                document.getElementById('connection-text').innerText = "Connected";
-            };
-
-            socket.onmessage = (event) => {
-                const packet = JSON.parse(event.data);
-                if (packet.type === 'message') {
-                    appendMessage(packet.message.sender, packet.message.body, packet.message.created_at);
-                }
-            };
-
-            socket.onclose = () => {
-                wsConnected = false;
-                document.getElementById('connection-dot').className = "w-2 h-2 rounded-full bg-red-500";
-                document.getElementById('connection-text').innerText = "Disconnected";
-            };
-        }
-
-        document.getElementById('user-search-input').addEventListener('input', async (e) => {
-            const query = e.target.value.trim();
-            if (query.length > 0) {
-                try {
-                    const res = await fetch(`/relay-api/users/search?q=${encodeURIComponent(query)}`);
-                    const data = await res.json();
-                    renderSearchResults(data.users || []);
-                } catch (err) {
-                    console.error('Search error', err);
-                }
-            } else {
-                document.getElementById('contacts-list').innerHTML = '<div class="p-4 text-center text-xs text-gray-500">Search for a user to start chatting</div>';
-            }
+      try {
+        const internalEmail = `${generatedHandle.toLowerCase()}@relay.app`;
+        const userCred = await createUserWithEmailAndPassword(auth, internalEmail, passwordVal);
+        await setDoc(doc(db, "users", userCred.user.uid), {
+          uid: userCred.user.uid,
+          displayName: nameVal,
+          handle: generatedHandle,
+          searchHandle: generatedHandle.toLowerCase()
         });
+      } catch (err) {
+        statusMsg.className = "status-msg error";
+        statusMsg.textContent = err.message.replace("Firebase: ", "");
+      }
+    };
 
-        function renderSearchResults(users) {
-            const container = document.getElementById('contacts-list');
-            container.innerHTML = '';
-            if (users.length === 0) {
-                container.innerHTML = '<div class="p-4 text-center text-xs text-gray-500">No users found</div>';
-                return;
-            }
-            users.forEach(user => {
-                const div = document.createElement('div');
-                div.className = "p-3 hover:bg-relay-hover flex items-center space-x-3 cursor-pointer transition border-b border-relay-border/20";
-                div.innerHTML = `
-                    <div class="w-10 h-10 rounded-full bg-relay-border flex items-center justify-center text-white font-bold text-sm">${user.username[0].toUpperCase()}</div>
-                    <div class="flex-1 min-w-0">
-                        <h4 class="text-sm font-bold text-white truncate">${user.username}</h4>
-                        <p class="text-xs text-gray-500">Click to chat</p>
-                    </div>
-                `;
-                div.onclick = () => selectRecipient(user.username);
-                container.appendChild(div);
-            });
-        }
+    window.handleSignIn = async function(e) {
+      e.preventDefault();
+      const handleVal = document.getElementById('loginHandle').value.trim().replace('@', '');
+      const statusMsg = document.getElementById('statusMsg');
+      try {
+        await signInWithEmailAndPassword(auth, `${handleVal.toLowerCase()}@relay.app`, document.getElementById('loginPassword').value);
+      } catch (err) {
+        statusMsg.className = "status-msg error";
+        statusMsg.textContent = "Invalid handle or password.";
+      }
+    };
 
-        async function selectRecipient(username) {
-            activeRecipient = username;
-            document.getElementById('active-username').innerText = username;
-            document.getElementById('active-avatar').innerText = username[0].toUpperCase();
-            document.getElementById('active-status').innerText = "Online";
-            document.getElementById('chat-input-area').classList.remove('hidden');
-            
-            connectWebSocket();
-            await loadChatHistory(username);
-        }
+    window.handleLogOut = () => signOut(auth);
 
-        async function loadChatHistory(username) {
-            const chatMessages = document.getElementById('chat-messages');
-            chatMessages.innerHTML = '';
-            try {
-                const res = await fetch(`/relay-api/conversations/${username}/messages`);
-                const data = await res.json();
-                if (res.ok && data.messages.length > 0) {
-                    data.messages.forEach(m => {
-                        const timeStr = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        appendMessage(m.sender, m.body, timeStr);
-                    });
-                } else {
-                    chatMessages.innerHTML = `<div class="m-auto text-center text-gray-600 text-xs">No messages yet with ${username}. Say hello!</div>`;
-                }
-            } catch (err) {
-                chatMessages.innerHTML = `<div class="m-auto text-center text-red-500 text-xs">Failed to load chat history.</div>`;
-            }
-        }
+    // Search users in Firestore by handle
+    window.searchUsers = async function(e) {
+      const queryVal = e.target.value.trim().toLowerCase().replace('@', '');
+      const contactsList = document.getElementById('contactsList');
 
-        document.getElementById('message-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const input = document.getElementById('message-input');
-            const text = input.value.trim();
-            if (!text || !activeRecipient || !socket || !wsConnected) return;
+      if (queryVal.length < 2) {
+        contactsList.innerHTML = `<div style="padding: 20px; text-align: center; color: #8696a0; font-size: 13px;">Type at least 2 characters to search handle...</div>`;
+        return;
+      }
 
-            socket.send(JSON.stringify({ type: 'message', body: text }));
-            input.value = '';
+      const q = query(collection(db, "users"), where("searchHandle", ">=", queryVal), where("searchHandle", "<=", queryVal + '\uf8ff'));
+      const snapshot = await getDocs(q);
+
+      contactsList.innerHTML = "";
+      if (snapshot.empty) {
+        contactsList.innerHTML = `<div style="padding: 20px; text-align: center; color: #8696a0; font-size: 13px;">No users found.</div>`;
+        return;
+      }
+
+      snapshot.forEach(docSnap => {
+        const userData = docSnap.data();
+        if (userData.uid === currentUser.uid) return; // Don't show yourself
+
+        const item = document.createElement('div');
+        item.className = 'contact-item';
+        item.innerHTML = `
+          <div class="avatar">${userData.displayName.charAt(0).toUpperCase()}</div>
+          <div class="contact-details">
+            <h4>${userData.displayName}</h4>
+            <p>@${userData.handle}</p>
+          </div>
+        `;
+        item.onclick = () => openChat(userData);
+        contactsList.appendChild(item);
+      });
+    };
+
+    // Open Chat with a selected user
+    function openChat(user) {
+      activeChatUser = user;
+      if (unsubscribeMessages) unsubscribeMessages(); // Stop listening to previous chat
+
+      const chatArea = document.getElementById('chatArea');
+      chatArea.innerHTML = `
+        <div class="chat-header"><span>Chat with ${user.displayName} (@${user.handle})</span></div>
+        <div class="messages-container" id="messagesContainer"></div>
+        <div class="chat-input-footer">
+          <input type="text" id="messageInput" class="chat-input" placeholder="Type a message..." onkeypress="checkSend(event)">
+          <button class="btn-send" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      `;
+
+      // Create a unique chat room ID combining both user IDs alphabetically
+      const chatId = [currentUser.uid, user.uid].sort().join('_');
+      const msgRef = collection(db, "chats", chatId, "messages");
+      const q = query(msgRef, orderBy("createdAt", "asc"));
+
+      unsubscribeMessages = onSnapshot(q, (snapshot) => {
+        const container = document.getElementById('messagesContainer');
+        if (!container) return;
+        container.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const msg = docSnap.data();
+          const bubble = document.createElement('div');
+          bubble.className = `message-bubble ${msg.senderId === currentUser.uid ? 'outgoing' : 'incoming'}`;
+          bubble.textContent = msg.text;
+          container.appendChild(bubble);
         });
+        container.scrollTop = container.scrollHeight;
+      });
+    }
 
-        function appendMessage(sender, text, timestamp) {
-            const chatMessages = document.getElementById('chat-messages');
-            if (chatMessages.querySelector('.m-auto')) {
-                chatMessages.innerHTML = '';
-            }
+    window.checkSend = function(e) {
+      if (e.key === 'Enter') sendMessage();
+    };
 
-            const isMe = currentUser && sender === currentUser.username;
-            const div = document.createElement('div');
-            div.className = `flex ${isMe ? 'justify-end' : 'justify-start'} mb-3`;
-            div.innerHTML = `
-                <div class="max-w-[70%] rounded-2xl px-4 py-2.5 text-sm ${isMe ? 'bg-white text-black rounded-br-none' : 'bg-relay-bubble text-white border border-relay-border rounded-bl-none'}">
-                    <p class="break-words">${text}</p>
-                    <span class="block text-[10px] mt-1 text-right ${isMe ? 'text-gray-600' : 'text-gray-400'}">${timestamp || ''}</span>
-                </div>
-            `;
-            chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+    window.sendMessage = async function() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text || !activeChatUser) return;
+
+      const chatId = [currentUser.uid, activeChatUser.uid].sort().join('_');
+      input.value = "";
+
+      await addDoc(collection(db, "chats", chatId, "messages"), {
+        text: text,
+        senderId: currentUser.uid,
+        createdAt: serverTimestamp()
+      });
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          document.getElementById('userNameDisplay').textContent = data.displayName;
+          document.getElementById('userHandleDisplay').textContent = `@${data.handle}`;
+          document.getElementById('userAvatar').textContent = data.displayName.charAt(0).toUpperCase();
         }
-
-        window.onload = checkSession;
-    </script>
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('dashScreen').style.display = 'block';
+      } else {
+        currentUser = null;
+        document.getElementById('authScreen').style.display = 'block';
+        document.getElementById('dashScreen').style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
